@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.banking.model.Account;
 import com.example.banking.service.AccountService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,8 +56,14 @@ public class AccountController {
     }
 
     @PostMapping("/{id}/withdraw")
-    public Account withdraw(@PathVariable Long id, @RequestBody Map<String, Double> request) {
-        Double amount = request.get("amount");
-        return accountService.withdraw(id, amount);
+    public ResponseEntity<?> withdraw(@PathVariable Long id, @RequestBody Map<String, Double> request) {
+        try {
+            Double amount = request.get("amount");
+            return ResponseEntity.status(HttpStatus.OK).body(accountService.withdraw(id, amount));
+        } catch (RuntimeException e) {
+            Map<String, String> map =  new HashMap<>();
+            map.put("errorMessage", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+        }
     }
 }
